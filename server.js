@@ -1,5 +1,6 @@
 import express from "express";
 import "dotenv/config";
+import cors from "cors";
 import {
     ApiError,
     Client,
@@ -11,6 +12,10 @@ import {
 import bodyParser from "body-parser";
 
 const app = express();
+
+// ✅ Enable CORS for all origins
+app.use(cors());
+
 app.use(bodyParser.json());
 
 const {
@@ -53,9 +58,7 @@ const createOrder = async (cart) => {
     };
 
     try {
-        const { body, ...httpResponse } = await ordersController.createOrder(
-            payload
-        );
+        const { body, ...httpResponse } = await ordersController.createOrder(payload);
         return {
             jsonResponse: JSON.parse(body),
             httpStatusCode: httpResponse.statusCode,
@@ -85,9 +88,7 @@ const captureOrder = async (orderID) => {
     };
 
     try {
-        const { body, ...httpResponse } = await ordersController.captureOrder(
-            collect
-        );
+        const { body, ...httpResponse } = await ordersController.captureOrder(collect);
         return {
             jsonResponse: JSON.parse(body),
             httpStatusCode: httpResponse.statusCode,
@@ -105,7 +106,7 @@ app.post("/api/orders/:orderID/capture", async (req, res) => {
         const { jsonResponse, httpStatusCode } = await captureOrder(orderID);
         res.status(httpStatusCode).json(jsonResponse);
     } catch (error) {
-        console.error("Failed to create order:", error);
+        console.error("Failed to capture order:", error);
         res.status(500).json({ error: "Failed to capture order." });
     }
 });
@@ -117,9 +118,7 @@ const authorizeOrder = async (orderID) => {
     };
 
     try {
-        const { body, ...httpResponse } = await ordersController.authorizeOrder(
-            collect
-        );
+        const { body, ...httpResponse } = await ordersController.authorizeOrder(collect);
         return {
             jsonResponse: JSON.parse(body),
             httpStatusCode: httpResponse.statusCode,
@@ -137,7 +136,7 @@ app.post("/api/orders/:orderID/authorize", async (req, res) => {
         const { jsonResponse, httpStatusCode } = await authorizeOrder(orderID);
         res.status(httpStatusCode).json(jsonResponse);
     } catch (error) {
-        console.error("Failed to create order:", error);
+        console.error("Failed to authorize order:", error);
         res.status(500).json({ error: "Failed to authorize order." });
     }
 });
@@ -151,8 +150,7 @@ const captureAuthorize = async (authorizationId) => {
         },
     };
     try {
-        const { body, ...httpResponse } =
-            await paymentsController.captureAuthorize(collect);
+        const { body, ...httpResponse } = await paymentsController.captureAuthorize(collect);
         return {
             jsonResponse: JSON.parse(body),
             httpStatusCode: httpResponse.statusCode,
@@ -167,12 +165,10 @@ const captureAuthorize = async (authorizationId) => {
 app.post("/orders/:authorizationId/captureAuthorize", async (req, res) => {
     try {
         const { authorizationId } = req.params;
-        const { jsonResponse, httpStatusCode } = await captureAuthorize(
-            authorizationId
-        );
+        const { jsonResponse, httpStatusCode } = await captureAuthorize(authorizationId);
         res.status(httpStatusCode).json(jsonResponse);
     } catch (error) {
-        console.error("Failed to create order:", error);
+        console.error("Failed to capture authorize:", error);
         res.status(500).json({ error: "Failed to capture authorize." });
     }
 });
