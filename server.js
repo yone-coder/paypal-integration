@@ -41,15 +41,22 @@ const client = new Client({
 const ordersController = new OrdersController(client);
 const paymentsController = new PaymentsController(client);
 
-const createOrder = async (cart) => {
+const createOrder = async (cart, payer) => {
     const payload = {
         body: {
             intent: "CAPTURE",
+            payer: {
+                email_address: payer?.email,
+                name: {
+                    given_name: payer?.name?.split(' ')[0] || 'Customer',
+                    surname: payer?.name?.split(' ').slice(1).join(' ') || ''
+                }
+            },
             purchaseUnits: [
                 {
                     amount: {
                         currencyCode: "USD",
-                        value: cart.amount,
+                        value: cart.amount, // Use cart.amount instead of hardcoded "100"
                     },
                 },
             ],
@@ -72,8 +79,8 @@ const createOrder = async (cart) => {
 
 app.post("/api/orders", async (req, res) => {
     try {
-        const { cart } = req.body;
-        const { jsonResponse, httpStatusCode } = await createOrder(cart);
+        const { cart, payer } = req.body;
+        const { jsonResponse, httpStatusCode } = await createOrder(cart, payer);
         res.status(httpStatusCode).json(jsonResponse);
     } catch (error) {
         console.error("Failed to create order:", error);
