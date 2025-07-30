@@ -30,7 +30,7 @@ const client = new Client({
         oAuthClientSecret: PAYPAL_CLIENT_SECRET,
     },
     timeout: 0,
-    environment: Environment.Live,
+    environment: Environment.Sandbox,
     logging: {
         logLevel: LogLevel.Info,
         logRequest: { logBody: true },
